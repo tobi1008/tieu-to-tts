@@ -2,7 +2,7 @@
 
 Cách dùng:
     python doc_file.py kich-ban.txt
-    python doc_file.py kich-ban.txt --output tap-01.wav --voice "Tiểu Tô"
+    python doc_file.py kich-ban.txt --output tap-01.wav
 
 Cách hoạt động:
 - Tự cắt text thành từng đoạn nhỏ theo câu/đoạn văn, đọc lần lượt.
@@ -58,7 +58,6 @@ def main():
     ap = argparse.ArgumentParser(description="Đọc file text dài bằng giọng Tiểu Tô")
     ap.add_argument("input", help="File .txt chứa kịch bản (UTF-8)")
     ap.add_argument("--output", default=None, help="File wav kết quả (mặc định: <ten-input>.wav)")
-    ap.add_argument("--voice", default=TEN_GIONG, help="Tên giọng (mặc định: Tiểu Tô)")
     ap.add_argument("--nghi-cau", type=float, default=0.3, help="Giây lặng giữa các đoạn")
     ap.add_argument("--nghi-doan", type=float, default=0.7, help="Giây lặng khi hết đoạn văn")
     args = ap.parse_args()
@@ -75,7 +74,7 @@ def main():
     print(f"Tổng {len(text)} ký tự, cắt thành {len(chunks)} đoạn.", flush=True)
 
     tts, load_s = get_tts()
-    print(f"Load model: {load_s:.1f} giây. Bắt đầu đọc bằng giọng '{args.voice}'...", flush=True)
+    print(f"Load model: {load_s:.1f} giây. Bắt đầu đọc bằng giọng '{TEN_GIONG}'...", flush=True)
 
     total_audio = 0.0
     total_time = 0.0
@@ -88,7 +87,7 @@ def main():
             print(f"[{idx + 1}/{len(chunks)}] đã có, bỏ qua ({d:.1f}s audio)", flush=True)
             continue
         t1 = time.time()
-        audio = tts.infer(chunk_text, voice=args.voice)
+        audio = tts.infer(chunk_text, voice=TEN_GIONG)
         elapsed = time.time() - t1
         tts.save(audio, str(part))
         dur = len(audio) / SR

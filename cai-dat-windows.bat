@@ -35,11 +35,9 @@ if errorlevel 1 (
 echo Dang cai VieNeu (mat vai phut)...
 .venv\Scripts\python.exe -m pip install --upgrade pip
 .venv\Scripts\python.exe -m pip install -r requirements.txt
-if errorlevel 1 (
-  echo Cai vieneu that bai - kiem tra mang roi chay lai file nay.
-  pause
-  exit /b 1
-)
+if errorlevel 1 goto loi
+.venv\Scripts\python.exe -m pip install --no-deps -r requirements-vieneu.txt
+if errorlevel 1 goto loi
 
 echo.
 echo === Tai model + kiem tra giong Tieu To (lan dau mat vai phut) ===
@@ -49,3 +47,9 @@ echo.
 echo === CAI XONG ===
 echo Tu gio chi can nhap dup file "mo-tool-windows.bat" de mo tool doc text.
 pause
+exit /b 0
+
+:loi
+echo Cai thu vien that bai - kiem tra mang roi chay lai file nay.
+pause
+exit /b 1

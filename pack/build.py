@@ -30,9 +30,9 @@ PY_URL = ("https://github.com/astral-sh/python-build-standalone/releases/downloa
 PY_SHA256 = "bbc902d4d187ac4914915bf538196a064b49109a33a104965b5164ced5b80a1e"
 
 APP_FILES = ["app.py", "core.py", "doc_file.py", "tai-model.py", "capnhat.py",
-             "requirements.txt", "README.md",
+             "requirements.txt", "requirements-vieneu.txt", "README.md",
+             "assets/voices_tieu_to.json",  # giọng Tiểu Tô clone sẵn; file wav/mp3 mẫu chỉ giữ trong repo
              "cai-dat.command", "mo-tool.command", "cai-dat-windows.bat", "mo-tool-windows.bat"]
-APP_DIRS = ["assets"]
 SOURCE_ONLY = {"cai-dat.command", "mo-tool.command", "cai-dat-windows.bat", "mo-tool-windows.bat"}
 
 
@@ -44,9 +44,8 @@ def copy_app(dst: Path, ver: str, portable: bool) -> None:
     dst.mkdir(parents=True, exist_ok=True)
     for f in APP_FILES:
         if not (portable and f in SOURCE_ONLY):
+            (dst / f).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / f, dst / f)
-    for d in APP_DIRS:
-        shutil.copytree(ROOT / d, dst / d, dirs_exist_ok=True)
     (dst / "outputs").mkdir(exist_ok=True)
     (dst / "outputs" / ".gitkeep").touch()
     shutil.copy2(ROOT / "pack" / "Mo-Tieu-To-TTS.bat", dst / "Mo-Tieu-To-TTS.bat")
@@ -91,6 +90,28 @@ def fetch_python() -> Path:
     return tgz
 
 
+# Những thứ tool không dùng tới: file debug, giao diện Tk, IDLE, bộ test của Python và thư viện.
+# Giữ pip (nút cập nhật cần khi bản mới đổi thư viện). Bản build vẫn chạy thử đọc 1 câu sau khi cắt.
+_TRIM_DIRS = ["tcl", "Lib/test", "Lib/idlelib", "Lib/tkinter", "Lib/turtledemo", "Lib/ensurepip"]
+_TRIM_FILES = ["DLLs/_tkinter.pyd", "DLLs/tcl86t.dll", "DLLs/tk86t.dll"]
+
+
+def trim(py_dir: Path) -> None:
+    before = sum(p.stat().st_size for p in py_dir.rglob("*") if p.is_file())
+    for d in _TRIM_DIRS:
+        shutil.rmtree(py_dir / d, ignore_errors=True)
+    for f in _TRIM_FILES:
+        (py_dir / f).unlink(missing_ok=True)
+    for p in list(py_dir.rglob("*.pdb")):
+        p.unlink()
+    site = py_dir / "Lib" / "site-packages"
+    for p in sorted(site.rglob("*"), key=lambda x: len(x.parts)):
+        if p.is_dir() and p.exists() and p.name in ("tests", "test") and p.parent != site:
+            shutil.rmtree(p, ignore_errors=True)
+    after = sum(p.stat().st_size for p in py_dir.rglob("*") if p.is_file())
+    print(f"→ Cắt gọn Python: {before / 1e6:.0f}MB → {after / 1e6:.0f}MB", flush=True)
+
+
 def build_windows(ver: str, smoke: bool) -> None:
     if os.name != "nt":
         sys.exit("Bản portable phải build trên Windows (thư viện cài cho đúng nền tảng).")
@@ -101,8 +122,10 @@ def build_windows(ver: str, smoke: bool) -> None:
         t.extractall(out, filter="data")
     py = out / "python" / "python.exe"
     print("→ Cài thư viện vào Python portable", flush=True)
-    subprocess.run([str(py), "-m", "pip", "install", "--disable-pip-version-check",
-                    "--no-warn-script-location", "-r", str(ROOT / "requirements.txt")], check=True)
+    sys.path.insert(0, str(ROOT))
+    from capnhat import install_requirements
+    install_requirements(ROOT, str(py))
+    trim(out / "python")
     copy_app(out, ver, portable=True)
 
     if smoke:
@@ -113,7 +136,7 @@ def build_windows(ver: str, smoke: bool) -> None:
         r = subprocess.run([str(py), "-c", "import capnhat; print(capnhat.current_version(), capnhat.is_portable())"],
                            cwd=out, env=env, check=True, capture_output=True, text=True)
         assert r.stdout.split() == [ver, "True"], r.stdout
-        # không đóng gói model (~550MB, tool tự tải lần đầu) và file thử
+        # không đóng gói model (~500MB, tool tự tải lần đầu) và file thử
         shutil.rmtree(out / "models", ignore_errors=True)
         (out / "outputs" / "mau-thu.wav").unlink()
         shutil.rmtree(out / "__pycache__", ignore_errors=True)

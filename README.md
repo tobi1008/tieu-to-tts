@@ -1,14 +1,14 @@
 # Tiểu Tô TTS — tool đọc text bằng giọng clone Tiểu Tô, chạy ngay trên máy của bạn
 
 Tool dùng model **VieNeu-TTS v3 Turbo** (mã nguồn mở, Apache-2.0) chạy offline trên CPU.
-Giọng **Tiểu Tô** đã được đăng ký sẵn từ file mẫu — mở tool lên là đọc được ngay,
+Giọng **Tiểu Tô** đã được clone sẵn (`assets/voices_tieu_to.json`) — mở tool lên là đọc được ngay,
 không cần làm gì thêm. Mọi xử lý diễn ra trên máy của bạn, text không gửi đi đâu cả.
 
 ## Yêu cầu
 
 - Windows 10/11 hoặc macOS (Apple Silicon M1/M2/M3 hoặc Intel đều được) — Linux cũng chạy với cách tương tự
 - **Python 3.10 trở lên** (script cài đặt sẽ tự kiểm tra và hướng dẫn nếu chưa có)
-- Lần cài đầu cần internet để tải thư viện + model (khoảng 600MB), các lần sau chạy offline
+- Lần cài đầu cần internet để tải thư viện + model (khoảng 500MB), các lần sau chạy offline
 - Khoảng 2GB ổ trống
 
 ## Tải về (dễ nhất)
@@ -17,7 +17,7 @@ Vào trang [**Releases**](https://github.com/tobi1008/tieu-to-tts/releases/lates
 
 - **Windows**: tải `TieuToTTS-windows-x64.zip` — bản portable, **không cần cài Python**.
   Giải nén toàn bộ ra chỗ cố định (đường dẫn ngắn, ví dụ `D:\TieuToTTS`) → nhấp đúp **`Mo-Tieu-To-TTS.bat`**.
-  Lần đầu tool tự tải model (~550MB), các lần sau chạy offline. Xem thêm `HUONG-DAN.txt` trong gói.
+  Lần đầu tool tự tải model (~500MB), các lần sau chạy offline. Xem thêm `HUONG-DAN.txt` trong gói.
 - **macOS**: tải `TieuToTTS-app.zip`, giải nén rồi làm theo phần "Cài đặt trên macOS" bên dưới.
 
 ## Cập nhật
@@ -36,7 +36,7 @@ tab **Actions → Release Windows → Run workflow**.
 2. Nhấp đúp **`cai-dat-windows.bat`**.
    - Nếu chưa có Python: script sẽ tự mở trang tải Python. Khi cài Python, **nhớ tích ô "Add python.exe to PATH"** ở màn hình đầu tiên, cài xong chạy lại file `.bat` này.
    - Nếu Windows hiện cảnh báo SmartScreen: bấm **More info → Run anyway** (đây là file script thường, không phải file lạ).
-   - Script sẽ tự: tạo môi trường riêng → cài VieNeu → tải model → đăng ký giọng Tiểu Tô → đọc thử 1 câu và **in ra tốc độ thật trên máy của bạn**.
+   - Script sẽ tự: tạo môi trường riêng → cài VieNeu → tải model → nạp giọng Tiểu Tô → đọc thử 1 câu và **in ra tốc độ thật trên máy của bạn**.
 3. Nghe thử câu mẫu ở `outputs\mau-thu.wav`.
 4. Từ lần sau: nhấp đúp **`mo-tool-windows.bat`** để mở tool (trình duyệt mở `http://127.0.0.1:7860`).
    Đọc file kịch bản dài: mở CMD/PowerShell trong thư mục này, chạy `.venv\Scripts\python.exe doc_file.py kich-ban.txt`
@@ -46,7 +46,7 @@ tab **Actions → Release Windows → Run workflow**.
 1. Giải nén thư mục này ra chỗ nào cố định (ví dụ Desktop hoặc Documents), đừng chạy trong thư mục Downloads tạm.
 2. Nhấp đúp **`cai-dat.command`**.
    - Nếu macOS chặn vì "không rõ nhà phát triển": chuột phải vào file → **Open** → **Open**.
-   - Script sẽ tự: tạo môi trường riêng → cài VieNeu → tải model → đăng ký giọng Tiểu Tô → đọc thử 1 câu và **in ra tốc độ thật trên máy của bạn** (máy bạn tạo 30 phút audio mất khoảng bao lâu).
+   - Script sẽ tự: tạo môi trường riêng → cài VieNeu → tải model → nạp giọng Tiểu Tô → đọc thử 1 câu và **in ra tốc độ thật trên máy của bạn** (máy bạn tạo 30 phút audio mất khoảng bao lâu).
 3. Nghe thử câu mẫu ở `outputs/mau-thu.wav`.
 
 ## Dùng hằng ngày
@@ -70,7 +70,6 @@ python doc_file.py kich-ban.txt
   Bị tắt máy/ngắt giữa chừng thì chạy lại đúng lệnh cũ — nó đọc tiếp từ đoạn dở, không đọc lại từ đầu.
 - Xong sẽ có 1 file `.wav` ghép hoàn chỉnh (và `.mp3` nếu máy có sẵn ffmpeg —
   cài bằng `brew install ffmpeg` nếu muốn có mp3).
-- Muốn đổi giọng có sẵn của VieNeu: thêm `--voice "Tên Giọng"` (xem danh sách giọng trong giao diện web).
 
 ## Tốc độ tham khảo
 
@@ -84,7 +83,7 @@ python doc_file.py kich-ban.txt
 
 - `app.py` — giao diện web · `doc_file.py` — đọc file dài · `core.py` — nạp model + giọng Tiểu Tô · `capnhat.py` — kiểm tra/cài bản mới
 - `pack/` + `.github/workflows/release.yml` — đóng gói bản Windows portable và phát hành
-- `assets/` — file mẫu giọng Tiểu Tô (đừng xoá, tool cần nó để đăng ký giọng mỗi lần mở)
+- `assets/voices_tieu_to.json` — giọng Tiểu Tô đã clone sẵn (đừng xoá, tool đọc bằng giọng này). `ref-tieu-to.wav`/`mau-goc-tieu-to.mp3` là file mẫu gốc, chỉ giữ trong repo để clone lại khi cần, tool không dùng
 - `models/` — model đã tải về dạng file thật (tool tự tạo lúc cài; xoá đi thì lần mở sau sẽ tải lại)
 - `outputs/` — các file audio tạo ra từ giao diện web
 

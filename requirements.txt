@@ -1,1 +1,11 @@
-vieneu==3.8.3
+# Thư viện cần để ĐỌC bằng giọng Tiểu Tô (giọng đã clone sẵn nên không cần librosa,
+# scipy, numba... vốn chỉ dùng để clone giọng mới — bớt ~330MB).
+# vieneu cài riêng bằng requirements-vieneu.txt với --no-deps để không kéo librosa về.
+sea-g2p>=0.9.1
+onnxruntime>=1.20.0
+numpy
+soundfile
+tokenizers>=0.20
+huggingface_hub
+gradio>=5.49.1
+PyYAML

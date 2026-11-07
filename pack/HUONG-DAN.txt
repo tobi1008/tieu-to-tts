@@ -8,7 +8,7 @@ KHÔNG cần cài Python hay gì khác: bản này đã có sẵn mọi thứ.
 
 2. Nhấp đúp "Mo-Tieu-To-TTS.bat".
    - Windows hiện cảnh báo SmartScreen: bấm "More info" -> "Run anyway".
-   - LẦN ĐẦU tool tự tải model (khoảng 550MB) nên cần internet và đợi vài phút.
+   - LẦN ĐẦU tool tự tải model (khoảng 500MB) nên cần internet và đợi vài phút.
      Các lần sau mở lên là dùng được ngay, không cần mạng.
    - Trình duyệt tự mở http://127.0.0.1:7860 -> dán text -> bấm "Đọc".
    - Giữ cửa sổ đen mở khi đang dùng, đóng nó là tắt tool.

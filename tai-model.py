@@ -1,4 +1,4 @@
-"""Chạy 1 lần sau khi cài: tải model + đăng ký giọng Tiểu Tô + đọc thử 1 câu
+"""Chạy 1 lần sau khi cài: tải model + nạp giọng Tiểu Tô + đọc thử 1 câu
 để đo tốc độ thật trên máy của bạn. Kết quả lưu ở outputs/mau-thu.wav"""
 import time
 from pathlib import Path
@@ -10,7 +10,7 @@ CAU_THU = ("Xin chào, mình là Tiểu Tô đây. Đây là câu đọc thử �
 
 if __name__ == "__main__":
     tts, load_s = get_tts()
-    print(f"Load model + đăng ký giọng {TEN_GIONG}: {load_s:.1f} giây", flush=True)
+    print(f"Load model + nạp giọng {TEN_GIONG}: {load_s:.1f} giây", flush=True)
     t1 = time.time()
     audio = tts.infer(CAU_THU, voice=TEN_GIONG)
     elapsed = time.time() - t1

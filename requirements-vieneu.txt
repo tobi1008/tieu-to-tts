@@ -1,0 +1,3 @@
+# Cài bằng: pip install --no-deps -r requirements-vieneu.txt
+# Ghim phiên bản vì core.py vá vào bên trong vieneu.
+vieneu==3.8.3

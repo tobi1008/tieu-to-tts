@@ -11,7 +11,7 @@ if not exist "python\python.exe" (
   exit /b 1
 )
 echo Tool se mo tai http://127.0.0.1:7860 - giu cua so nay mo khi dang dung, dong la tat tool.
-echo Lan dau mo se tai model (khoang 550MB), can internet va doi vai phut.
+echo Lan dau mo se tai model (khoang 500MB), can internet va doi vai phut.
 :run
 "python\python.exe" app.py
 rem ma thoat 3 = vua cap nhat xong, chay lai tool

@@ -32,6 +32,23 @@ _SOURCE_ONLY = {"cai-dat.command", "mo-tool.command", "cai-dat-windows.bat", "mo
 _UA = {"User-Agent": "tieu-to-tts-updater", "Accept": "application/vnd.github+json"}
 
 
+REQ_FILES = ("requirements.txt", "requirements-vieneu.txt")
+
+
+def _read(p: Path) -> bytes:
+    return p.read_bytes() if p.exists() else b""
+
+
+def install_requirements(folder: Path, python: str) -> None:
+    """Cài thư viện: requirements.txt bình thường, vieneu thì --no-deps (khỏi kéo librosa...)."""
+    base = [python, "-m", "pip", "install", "--disable-pip-version-check", "--no-warn-script-location"]
+    for args in (["-r", str(folder / "requirements.txt")],
+                 ["--no-deps", "-r", str(folder / "requirements-vieneu.txt")]):
+        r = subprocess.run(base + args, capture_output=True, text=True)
+        if r.returncode != 0:
+            raise RuntimeError("cài thư viện thất bại:\n" + (r.stderr or r.stdout)[-1500:])
+
+
 def current_version() -> str:
     try:
         return (BASE / "version.txt").read_text(encoding="utf-8").strip() or "dev"
@@ -100,17 +117,11 @@ def install(info: dict, log=print) -> str:
             z.extractall(tmp / "x")
         src = _find_root(tmp / "x")
 
-        # Bản mới cần thư viện khác (requirements.txt đổi) -> cài trước, lỗi thì dừng,
+        # Bản mới cần thư viện khác (file requirements đổi) -> cài trước, lỗi thì dừng,
         # chưa đụng tới file nào của bản đang chạy.
-        new_req = (src / "requirements.txt").read_bytes() if (src / "requirements.txt").exists() else b""
-        old_req = (BASE / "requirements.txt").read_bytes() if (BASE / "requirements.txt").exists() else b""
-        if new_req and new_req != old_req:
+        if any(_read(src / f) != _read(BASE / f) for f in REQ_FILES):
             log("Bản mới cần thư viện mới, đang cài (có thể mất vài phút)...")
-            r = subprocess.run([sys.executable, "-m", "pip", "install", "--disable-pip-version-check",
-                                "--no-warn-script-location", "-r", str(src / "requirements.txt")],
-                               capture_output=True, text=True)
-            if r.returncode != 0:
-                raise RuntimeError("cài thư viện thất bại:\n" + (r.stderr or r.stdout)[-1500:])
+            install_requirements(src, sys.executable)
 
         portable = is_portable()
         files = [p for p in src.rglob("*") if p.is_file() and p.name != "version.txt"]
