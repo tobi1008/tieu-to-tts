@@ -9,4 +9,9 @@ fi
 # shellcheck disable=SC1091
 source .venv/bin/activate
 echo "Tool sẽ mở tại http://127.0.0.1:7860 - giữ cửa sổ này mở khi đang dùng, đóng là tắt tool."
-python app.py
+# mã thoát 3 = vừa cập nhật xong, chạy lại tool
+while true; do
+  python app.py
+  [ $? -eq 3 ] || break
+  export TIEUTO_RESTART=1
+done

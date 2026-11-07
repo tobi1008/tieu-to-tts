@@ -1,0 +1,51 @@
+# Push lên main có đổi code -> build bản Windows portable trên máy Windows thật, chạy thử đọc 1 câu,
+# rồi phát hành GitHub Release. Máy đã cài thấy bản mới ở mục "Cập nhật" trong tool.
+name: Release Windows
+
+on:
+  push:
+    branches: [main]
+    paths: ['*.py', '*.bat', '*.command', 'requirements.txt', 'assets/**', 'pack/**', '.github/workflows/release.yml']
+  workflow_dispatch:
+    inputs:
+      notes:
+        description: 'Ghi chú phát hành (bỏ trống = danh sách commit)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # ghi chú = các commit kể từ bản phát hành trước
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build + chạy thử
+        run: python pack/build.py windows --smoke
+      - name: Phát hành
+        shell: bash
+        env:
+          NOTES: ${{ inputs.notes }}
+        run: |
+          VERSION="$(cat dist/VERSION)"
+          prev="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
+          if [ -n "$NOTES" ]; then notes="$NOTES"
+          elif [ -n "$prev" ] && git rev-parse -q --verify "$prev" >/dev/null; then notes="$(git log --format='- %s' "$prev"..HEAD)"
+          else notes="$(git log -5 --format='- %s')"; fi
+          notes="${notes:-Cập nhật}
+
+          **Tải về:** Windows → \`TieuToTTS-windows-x64.zip\` (giải nén, nhấp đúp \`Mo-Tieu-To-TTS.bat\`). macOS → \`TieuToTTS-app.zip\` (giải nén, nhấp đúp \`cai-dat.command\`)."
+          gh release create "v$VERSION" dist/TieuToTTS-windows-x64.zip dist/TieuToTTS-app.zip \
+            --title "Tiểu Tô TTS $VERSION" --notes "$notes" --target "$GITHUB_SHA"
+          echo "✓ Đã phát hành v$VERSION"

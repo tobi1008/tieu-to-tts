@@ -11,7 +11,26 @@ không cần làm gì thêm. Mọi xử lý diễn ra trên máy của bạn, te
 - Lần cài đầu cần internet để tải thư viện + model (khoảng 600MB), các lần sau chạy offline
 - Khoảng 2GB ổ trống
 
-## Cài đặt trên Windows (chỉ làm 1 lần)
+## Tải về (dễ nhất)
+
+Vào trang [**Releases**](https://github.com/tobi1008/tieu-to-tts/releases/latest):
+
+- **Windows**: tải `TieuToTTS-windows-x64.zip` — bản portable, **không cần cài Python**.
+  Giải nén toàn bộ ra chỗ cố định (đường dẫn ngắn, ví dụ `D:\TieuToTTS`) → nhấp đúp **`Mo-Tieu-To-TTS.bat`**.
+  Lần đầu tool tự tải model (~550MB), các lần sau chạy offline. Xem thêm `HUONG-DAN.txt` trong gói.
+- **macOS**: tải `TieuToTTS-app.zip`, giải nén rồi làm theo phần "Cài đặt trên macOS" bên dưới.
+
+## Cập nhật
+
+Trong tool, mở mục **Cập nhật** ở cuối trang → **Kiểm tra cập nhật** (bản tải từ Releases còn tự kiểm tra
+mỗi lần mở trang). Có bản mới thì bấm **Cài bản mới**: tool tải gói code mới, chép đè, tự khởi động lại —
+đợi ~30 giây rồi F5. Model, audio đã tạo và thư viện đều giữ nguyên (thư viện chỉ cài thêm khi bản mới cần).
+
+Mỗi lần push code lên nhánh `main`, GitHub Actions tự build bản Windows trên máy Windows thật, chạy thử
+đọc 1 câu, rồi phát hành bản mới (phiên bản = ngày giờ, ví dụ `2026.11.07.1930`). Chạy tay:
+tab **Actions → Release Windows → Run workflow**.
+
+## Cài đặt trên Windows bằng Python có sẵn (chỉ làm 1 lần)
 
 1. Giải nén thư mục này ra chỗ cố định (ví dụ Desktop hoặc `D:\TieuToTTS`), đừng chạy trong thư mục Downloads tạm.
 2. Nhấp đúp **`cai-dat-windows.bat`**.
@@ -63,7 +82,8 @@ python doc_file.py kich-ban.txt
 
 ## Cấu trúc thư mục
 
-- `app.py` — giao diện web · `doc_file.py` — đọc file dài · `core.py` — nạp model + giọng Tiểu Tô
+- `app.py` — giao diện web · `doc_file.py` — đọc file dài · `core.py` — nạp model + giọng Tiểu Tô · `capnhat.py` — kiểm tra/cài bản mới
+- `pack/` + `.github/workflows/release.yml` — đóng gói bản Windows portable và phát hành
 - `assets/` — file mẫu giọng Tiểu Tô (đừng xoá, tool cần nó để đăng ký giọng mỗi lần mở)
 - `models/` — model đã tải về dạng file thật (tool tự tạo lúc cài; xoá đi thì lần mở sau sẽ tải lại)
 - `outputs/` — các file audio tạo ra từ giao diện web

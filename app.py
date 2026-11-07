@@ -4,6 +4,7 @@ Nhập text, bấm Đọc, nghe/tải file wav. Text dài (kịch bản 30-60 ph
 nên dùng doc_file.py để có tính năng đọc tiếp khi bị ngắt giữa chừng.
 """
 import os
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
@@ -16,6 +17,7 @@ for _k in ("no_proxy", "NO_PROXY"):
 
 import gradio as gr
 
+import capnhat
 from core import BASE, TEN_GIONG, get_tts
 
 print("Đang load model (lần đầu có thể mất vài phút để tải model)...", flush=True)
@@ -49,6 +51,40 @@ def doc(text: str, voice: str):
                        f"(RTF {elapsed / dur:.2f}). File: outputs/{name}")
 
 
+PHIEN_BAN = capnhat.current_version()
+
+
+def kiem_tra(tu_dong: bool = False):
+    """Trả về (thông báo, hiện nút Cài?, thông tin bản mới)."""
+    try:
+        info = capnhat.check()
+    except Exception as e:  # mất mạng, GitHub chặn tạm... không làm phiền khi tự kiểm tra
+        msg = "" if tu_dong else f"Không kiểm tra được cập nhật: {e}"
+        return msg, gr.update(visible=False), None
+    if not capnhat.is_newer(info["version"], PHIEN_BAN):
+        return ("" if tu_dong else f"Bạn đang dùng bản mới nhất ({PHIEN_BAN})."), gr.update(visible=False), None
+    notes = f"\n\n**Có gì mới:**\n{info['notes']}" if info["notes"] else ""
+    if PHIEN_BAN == "dev":
+        return (f"Bản mới nhất trên GitHub: **{info['version']}**. Bạn đang chạy từ mã nguồn (git) "
+                f"nên cập nhật bằng lệnh `git pull`.{notes}"), gr.update(visible=False), None
+    return (f"🎉 Có bản mới **{info['version']}** (bạn đang dùng {PHIEN_BAN}).{notes}\n\n"
+            "Bấm **Cài bản mới** — model và các file audio đã tạo được giữ nguyên, "
+            "tool tự khởi động lại sau khi cài."), gr.update(visible=True), info
+
+
+def cai_dat(info):
+    if not info:
+        return "Bấm **Kiểm tra cập nhật** trước.", gr.update(visible=False)
+    try:
+        ver = capnhat.install(info)
+    except Exception as e:
+        return f"❌ Cập nhật thất bại: {e}", gr.update(visible=True)
+    print(f"Đã cập nhật lên bản {ver}, đang khởi động lại...", flush=True)
+    threading.Timer(1.5, lambda: os._exit(capnhat.RESTART_CODE)).start()
+    return (f"✅ Đã cài bản **{ver}**. Tool đang khởi động lại — đợi khoảng 30 giây "
+            "rồi bấm **F5** để tải lại trang."), gr.update(visible=False)
+
+
 with gr.Blocks(title="Tiểu Tô TTS - đọc text bằng giọng clone") as demo:
     gr.Markdown("# Tiểu Tô TTS\nNhập text tiếng Việt, nghe giọng Tiểu Tô đọc. "
                 "Mọi thứ chạy ngay trên máy của bạn, không gửi đi đâu cả.")
@@ -63,6 +99,22 @@ with gr.Blocks(title="Tiểu Tô TTS - đọc text bằng giọng clone") as dem
     gr.Markdown("Mẹo: kịch bản dài 30-60 phút thì mở Terminal trong thư mục này và chạy "
                 "`python doc_file.py kich-ban.txt` — tool sẽ đọc từng đoạn, lưu lại từng đoạn "
                 "nên bị tắt giữa chừng cũng đọc tiếp được, cuối cùng tự ghép thành 1 file.")
+    with gr.Accordion(f"Cập nhật · phiên bản {PHIEN_BAN}", open=False):
+        upd_msg = gr.Markdown()
+        with gr.Row():
+            btn_check = gr.Button("Kiểm tra cập nhật")
+            btn_install = gr.Button("Cài bản mới", variant="primary", visible=False)
+        upd_info = gr.State(None)
+    btn_check.click(lambda: ("Đang kiểm tra...", gr.update(), None),
+                    outputs=[upd_msg, btn_install, upd_info]).then(
+        kiem_tra, outputs=[upd_msg, btn_install, upd_info])
+    btn_install.click(lambda: ("Đang tải và cài bản mới, đừng đóng tool...", gr.update(visible=False)),
+                      outputs=[upd_msg, btn_install]).then(
+        cai_dat, inputs=[upd_info], outputs=[upd_msg, btn_install])
+    if PHIEN_BAN != "dev":  # bản phát hành: mở trang là tự xem có bản mới không
+        demo.load(lambda: kiem_tra(True), outputs=[upd_msg, btn_install, upd_info])
 
 if __name__ == "__main__":
-    demo.launch(server_name="127.0.0.1", server_port=7860, inbrowser=True)
+    # Khởi động lại sau khi cập nhật thì không mở thêm tab trình duyệt mới
+    demo.launch(server_name="127.0.0.1", server_port=7860,
+                inbrowser=not os.environ.get("TIEUTO_RESTART"))

@@ -34,7 +34,7 @@ if errorlevel 1 (
 
 echo Dang cai VieNeu (mat vai phut)...
 .venv\Scripts\python.exe -m pip install --upgrade pip
-.venv\Scripts\python.exe -m pip install vieneu
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 if errorlevel 1 (
   echo Cai vieneu that bai - kiem tra mang roi chay lai file nay.
   pause

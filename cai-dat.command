@@ -27,7 +27,7 @@ echo "Dùng Python: $PY ($($PY --version))"
 # shellcheck disable=SC1091
 source .venv/bin/activate
 pip install --upgrade pip
-pip install vieneu || { echo "Cài vieneu thất bại - kiểm tra mạng rồi chạy lại."; read -r -p "Nhấn Enter để đóng..."; exit 1; }
+pip install -r requirements.txt || { echo "Cài vieneu thất bại - kiểm tra mạng rồi chạy lại."; read -r -p "Nhấn Enter để đóng..."; exit 1; }
 
 echo ""
 echo "=== Tải model + kiểm tra giọng Tiểu Tô (lần đầu mất vài phút) ==="

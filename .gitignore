@@ -7,3 +7,6 @@ outputs/*
 *_doan/
 .DS_Store
 Thumbs.db
+dist/
+pack/.cache/
+version.txt

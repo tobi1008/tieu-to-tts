@@ -1,0 +1,32 @@
+TIỂU TÔ TTS — đọc text bằng giọng clone Tiểu Tô, chạy ngay trên máy (bản Windows)
+==============================================================================
+
+KHÔNG cần cài Python hay gì khác: bản này đã có sẵn mọi thứ.
+
+1. Giải nén TOÀN BỘ file zip ra chỗ cố định, đường dẫn càng ngắn càng tốt
+   (ví dụ D:\TieuToTTS). Đừng chạy thẳng trong file zip hay thư mục Downloads tạm.
+
+2. Nhấp đúp "Mo-Tieu-To-TTS.bat".
+   - Windows hiện cảnh báo SmartScreen: bấm "More info" -> "Run anyway".
+   - LẦN ĐẦU tool tự tải model (khoảng 550MB) nên cần internet và đợi vài phút.
+     Các lần sau mở lên là dùng được ngay, không cần mạng.
+   - Trình duyệt tự mở http://127.0.0.1:7860 -> dán text -> bấm "Đọc".
+   - Giữ cửa sổ đen mở khi đang dùng, đóng nó là tắt tool.
+
+3. File audio tạo ra nằm trong thư mục "outputs".
+
+CẬP NHẬT
+- Mở tool là tool tự kiểm tra; hoặc mở mục "Cập nhật" ở cuối trang -> "Kiểm tra cập nhật".
+- Có bản mới thì bấm "Cài bản mới": tool tải bản mới, tự khởi động lại; đợi ~30 giây rồi
+  bấm F5 trên trình duyệt. Model và các file audio đã tạo được giữ nguyên.
+
+ĐỌC KỊCH BẢN DÀI (30-60 phút)
+- Mở thư mục tool, bấm vào thanh địa chỉ, gõ cmd rồi Enter, sau đó chạy:
+      python\python.exe doc_file.py kich-ban.txt
+- File kịch bản là .txt (UTF-8), ngắt đoạn văn bằng dòng trống. Bị tắt giữa chừng thì
+  chạy lại đúng lệnh cũ, tool đọc tiếp từ đoạn dở.
+
+LỖI THƯỜNG GẶP
+- Báo lỗi model/ONNX: xoá thư mục "models" rồi mở lại tool để tải lại sạch.
+- Cổng 7860 bận: đang có 1 cửa sổ tool khác mở, đóng nó trước.
+- Hỏi đáp, báo lỗi: https://github.com/tobi1008/tieu-to-tts
