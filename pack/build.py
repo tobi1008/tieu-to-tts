@@ -124,6 +124,7 @@ def build_windows(ver: str, smoke: bool) -> None:
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")  # console Windows mặc định cp1252, không in được tiếng Việt
     if len(sys.argv) < 2 or sys.argv[1] not in ("app", "windows"):
         sys.exit(__doc__)
     v = version()
